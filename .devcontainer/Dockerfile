@@ -6,6 +6,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 # Copy requirements files for Python and Ansible
 COPY requirements.in requirements.in
+COPY requirements-dev.in requirements-dev.txt
 COPY requirements.yml requirements.yml
 
 # Install Python requirements

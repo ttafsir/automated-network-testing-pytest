@@ -1,4 +1,5 @@
 ---
+version: 4.28.0F
 local_users:
   admin:
     privilege: 15
