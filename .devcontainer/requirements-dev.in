@@ -1,0 +1,10 @@
+black
+flake8
+isort
+pre-commit
+pre-commit-hooks
+yamllint
+pylint
+pytest
+pytest-xdist
+tox

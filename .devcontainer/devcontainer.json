@@ -1,0 +1,32 @@
+{
+  "image": "vscode-dev",
+  "runArgs": ["--net=ceos_clab", "--ip=172.100.100.99"],
+  "postStartCommand": "/bin/zsh",
+  "extensions": [
+    "codezombiech.gitignore",
+    "DavidAnson.vscode-markdownlint",
+    "eamodio.gitlens",
+    "jack89ita.copy-filename",
+    "mhutchie.git-graph",
+    "ms-python.python",
+    "njpwerner.autodocstring",
+    "christian-kohler.path-intellisense",
+    "redhat.ansible",
+    "redhat.vscode-yaml",
+    "samuelcolvin.jinjahtml",
+    "timonwong.ansible-autocomplete",
+    "tuxtina.json2yaml",
+    "wholroyd.jinja",
+    "github.vscode-pull-request-github",
+    "ms-python.vscode-pylance"
+  ],
+  "settings": {
+    "python.linting.flake8Enabled": true,
+    "python.linting.enabled": true,
+    "python.linting.flake8Args": ["--max-line-length=120"],
+    "python.formatting.provider": "black",
+    "python.linting.pylintEnabled": false,
+    "python.sortImports.args": ["--profile", "black"],
+    "editor.formatOnSave": true
+  }
+}

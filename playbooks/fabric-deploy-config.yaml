@@ -1,0 +1,34 @@
+- name: Build cEOS EVPN Symmetric IRB Fabric (eBGP Overlay and eBGP Underlay)
+  hosts: DC1_FABRIC
+
+  vars:
+    root_dir: '{{ inventory_dir }}'
+    output_dir_name: 'intended'
+    output_dir: '{{ root_dir }}/{{ output_dir_name }}'
+    eos_config_dir_name: 'configs'
+    eos_config_dir: '{{ output_dir }}/{{ eos_config_dir_name }}'
+
+  tasks:
+    - name: Build local folders
+      tags: [build]
+      ansible.builtin.import_role:
+        name: arista.avd.build_output_folders
+      vars:
+        fabric_dir_name: "{{ fabric_name }}"
+
+    - name: Generate intended variables
+      tags: [build]
+      ansible.builtin.import_role:
+        name: arista.avd.eos_designs
+
+    - name: Generate device intended config and documentation
+      tags: [build]
+      ansible.builtin.import_role:
+        name: arista.avd.eos_cli_config_gen
+
+    - name: Replace configuration with intended configuration
+      eos_config:
+        src: "{{ eos_config_dir }}/{{ inventory_hostname }}.cfg"
+        replace: config
+        save_when: modified
+      tags: [provision]

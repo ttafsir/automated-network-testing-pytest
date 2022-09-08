@@ -1,0 +1,9 @@
+ansible
+eve-ng
+netaddr
+tox
+scrapli
+pytest
+deepmerge
+dpath
+netmiko

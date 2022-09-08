@@ -1,0 +1,16 @@
+[
+  {
+    "host": "172.100.100.4",
+    "hostname": "leaf1a",
+    "username": "admin",
+    "password": "admin",
+    "device_type": "arista_eos",
+  },
+  {
+    "host": "172.100.100.5",
+    "hostname": "leaf1b",
+    "username": "admin",
+    "password": "admin",
+    "device_type": "arista_eos",
+  },
+]

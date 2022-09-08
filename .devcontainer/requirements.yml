@@ -1,0 +1,9 @@
+---
+collections:
+  - name: ansible.utils
+  - name: ansible.netcommon
+  - name: arista.avd
+  - name: arista.eos
+  - name: cisco.ios
+  - name: cisco.nxos
+  - name: cisco.iosxr
