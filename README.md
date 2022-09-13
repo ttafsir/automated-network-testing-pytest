@@ -4,7 +4,7 @@ This repository contains the code for the presentations at the RTP Network & Pro
 
 Meetup Presentations:
 
-* 9-08-2012 - [Test and Validate Networks with Pytest 1](https://www.youtube.com/watch?v=kuPTAca_p8w&t)
+* 9-08-2022 - [Test and Validate Networks with Pytest 1](https://www.youtube.com/watch?v=kuPTAca_p8w&t)
 * TBD - Test and Validate Networks with Pytest 2
 
 ## The Sample tests
