@@ -1,22 +1,31 @@
 import json
 
 
-def test_model_is_virtual(host):
+def test_device_model_is_correct(host):
     """
     Arrange/Act: Retrieve show version output from device
-    Assert: Verify that the device platform is a virtual device
+    Assert: Verify that we have the correct device platform
     """
     output = host.connection.send_command("show version | json")
     output_dict = json.loads(output)
     assert output_dict["modelName"] == "cEOSLab"
 
 
-def test_software_version(host, get_host_intent):
+def test_software_version(host):
     """
-    Arrange/Act: Retrieve facts from device and variables from inventory
-    Assert: The current matches the inventory version
+    Arrange/Act: Retrieve host vars/get show version output from device
+    Assert: The version on the device matches the version in host_vars
     """
-    host_intent = get_host_intent(host.name)
     output = host.connection.send_command("show version | json")
     output_dict = json.loads(output)
-    assert host_intent["version"] in output_dict["version"]
+    assert host.host_vars.get("version") in output_dict["version"]
+
+
+def test_hostname_matches_intended(host):
+    """
+    Arrange/Act: Retrieve host vars/get hostname from show run output
+    Assert: The configured hostname matches the intended hostname
+    """
+    output = host.connection.find_prompt()
+    hostname = output.replace("#", "")
+    assert str(host.name) == hostname

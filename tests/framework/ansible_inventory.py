@@ -1,6 +1,6 @@
 import os
 import sys
-from typing import Any, Generator, Optional, Tuple
+from typing import Any, Generator, Iterable, Mapping, Optional, Tuple
 
 try:
     from ansible import context
@@ -38,10 +38,14 @@ class AnsibleTestHost:
     Test host class to be used with pytest.
     """
 
-    def __init__(self, name: str, host_vars: dict[str, Any]):
-        self.name = name
-        self.host_vars = host_vars or {}
+    _cache = {}
+
+    def __init__(self, name: str, host_vars: Mapping[str, Any] = None):
+        self.name: str = name
+        self.host_vars: dict = host_vars or {}
         self.connection = None
+        self.topology: Iterable[Mapping] = None
+        self.links: Iterable[Mapping] = None
 
     def _get_device_platform(self, name: str) -> str:
         """Get device platform from name"""
@@ -66,8 +70,17 @@ class AnsibleTestHost:
                 port=int(self.host_vars.get("ansible_port", 22)),
                 username=os.environ.get("ANSIBLE_USER"),
                 password=os.environ.get("ANSIBLE_PASSWORD"),
-                device_type=self.platform
+                device_type=self.platform,
             )
+
+    @classmethod
+    def get_host(cls, hostname, **kwargs):
+        """Return a Host instance from using hostname"""
+        key = str(hostname)
+        cache = cls._cache
+        if key not in cache:
+            cache[key] = cls(hostname, **kwargs)
+        return cache[key]
 
 
 def parse_ansible_inventory_cli(
