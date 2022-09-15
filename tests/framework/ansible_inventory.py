@@ -27,7 +27,9 @@ class AnsibleInventoryCLI(InventoryCLI):
     def iter_host_vars(self):
         """Iterate over host vars as Ansible sees them"""
         CLI.run(self)
-        self.loader, self.inventory, self.vm = self._play_prereqs()
+
+        # setinventory and variable manager
+        _, self.inventory, self.vm = self._play_prereqs()
 
         for host in self.inventory.get_hosts(context.CLIARGS["host"]):
             yield host, self._get_host_variables(host=host)
@@ -46,6 +48,9 @@ class AnsibleTestHost:
         self.connection = None
         self.topology: Iterable[Mapping] = None
         self.links: Iterable[Mapping] = None
+
+    def __repr__(self):
+        return f"AnsibleTestHost('{self.name}')"
 
     def _get_device_platform(self, name: str) -> str:
         """Get device platform from name"""
