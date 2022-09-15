@@ -13,6 +13,23 @@ from .framework import (
 )
 
 
+class Helpers:
+    """
+    Helper class to provide helper fixtures
+    """
+
+    @staticmethod
+    @lru_cache(maxsize=128)
+    def send_command(host: BaseConnection, command: str) -> str:
+        return host.send_command(command)
+
+
+@pytest.fixture
+def helpers():
+    """Helper fixtures to manage connections to and output from devices"""
+    return Helpers
+
+
 @pytest.fixture(scope="session", ids=lambda device: device.name)
 def test_host(request):
     return request.param
