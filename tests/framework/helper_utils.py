@@ -20,7 +20,6 @@ def load_avd_structured_configs(
     path = get_fullpath("intended/structured_configs", inventory_dir, rootdir)
 
     # find the yaml files in the directory
-    print(f"loading files from: {path}")
     yaml_files = path.glob("*.yml")
     return {f.stem: yaml.safe_load(f.read_text()) for f in yaml_files}
 
@@ -33,6 +32,9 @@ def load_avd_fabric_data(
 ) -> dict[str, dict]:
     path = get_fullpath(f"documentation/{fabric}", inventory_dir, rootdir)
 
-    if csv_file := next((p for p in path.glob("*.csv") if pattern in p.name), None,):
+    if csv_file := next(
+        (p for p in path.glob("*.csv") if pattern in p.name),
+        None,
+    ):
         with open(csv_file, encoding="utf-8") as f:
             return tuple(csv.DictReader(f))
