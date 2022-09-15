@@ -1,9 +1,10 @@
-import re
 import typing
 from contextlib import contextmanager
+from functools import lru_cache
 from pathlib import Path
 
 import pytest
+from netmiko import BaseConnection
 
 from .framework import (
     AnsibleTestHost,
@@ -38,8 +39,7 @@ def test_host(request):
 @pytest.fixture(scope="session")
 def host(test_host):
     """
-    Connection setup and teardown for
-    each host needed in tests.
+    Returns the connection and performs teardown for each host needed in tests
     """
     test_host.init_connection()
     test_host.connection.enable()
@@ -50,6 +50,10 @@ def host(test_host):
 
 @pytest.fixture(scope="session")
 def get_connection():
+    """
+    Fixture factory to retrieve host from tests that cannot use host fixture directly
+    """
+
     @contextmanager
     def _get_connection(hostname: str):
         host = AnsibleTestHost.get_host(hostname)
@@ -57,8 +61,9 @@ def get_connection():
             host.init_connection()
             host.connection.enable()
         yield host.connection
-        host.connection.disconnect()
-        host.connection = None
+        if host.connection is not None:
+            host.connection.disconnect()
+            host.connection = None
 
     yield _get_connection
 
@@ -71,12 +76,6 @@ def inventory_path_fixture(request):
 @pytest.fixture(scope="session", name="rootdir")
 def rootdir_path_fixture(request):
     return Path(request.config.rootdir)
-
-
-@pytest.fixture(scope="session", name="avd_p2p_links")
-def avd_p2p_links_fixture(request):
-    config = request.config
-    return config.avd_p2p_links
 
 
 @pytest.fixture(scope="session")
@@ -115,7 +114,7 @@ def pytest_addoption(parser):
     - hosts: host or group to test against
 
     These can be used in the following ways:
-    - pytest --inventory-path=inventory.yml
+    - pytest --inventory-path=inventory
     - pytest --inventory-path=inventory.yml --hosts=eos,ios
     """
     parser.addoption(
@@ -141,7 +140,7 @@ def get_ids(host_obj: AnsibleTestHost) -> str:
     return host_obj.name
 
 
-def get_topology_ids(topology_dict: dict):
+def get_topology_ids(topology_dict: dict) -> str:
     """ID function for pytest parametrization"""
     return (
         f"{topology_dict['Node']}-{topology_dict['Node Interface']}:"
@@ -174,6 +173,8 @@ def pytest_generate_tests(metafunc):
         AnsibleTestHost.get_host(str(h.name), host_vars=host_vars)
         for h, host_vars in sorted(inventory, key=lambda x: x[0].name)
     ]
+
+    # Parametrize tests with hosts from the Ansible inventory. Includes all hosts.
     if "test_host" in metafunc.fixturenames and inventory_path is not None:
         metafunc.parametrize(
             "test_host",
@@ -183,27 +184,42 @@ def pytest_generate_tests(metafunc):
             indirect=True,
         )
 
-    # Load AVD fabric data so that we can use it to parametrize any tests that requests
+    # Use `leaf_host` for tests to require just leafs
+    if "leaf_host" in metafunc.fixturenames and fabric_opt is not None:
+        leafs = [x for x in test_hosts if x.host_vars["type"] in ("l2leaf", "l3leaf")]
+        metafunc.parametrize("leaf_host", leafs, scope="module", ids=get_ids)
+
+    # Use `spine_host` for tests to require just spines
+    if "spine_host" in metafunc.fixturenames and fabric_opt is not None:
+        leafs = [x for x in test_hosts if x.host_vars["type"] == "spine"]
+        metafunc.parametrize("spine_host", leafs, scope="module", ids=get_ids)
+
+    # Load AVD topology design documentation data to parametrize any tests that requests
     # the `topology` fixture as a dependency.
-    if "topology" in metafunc.fixturenames and fabric_opt is not None:
-        fabric_topology = load_avd_fabric_data(
-            "topology",
+    if "avd_topology" in metafunc.fixturenames and fabric_opt is not None:
+        if fabric_topology := load_avd_fabric_data(
+            "avd_topology",
             inventory_dir=Path(inventory_path),
             rootdir=metafunc.config.rootdir,
             fabric=fabric_opt,
-        )
+        ):
+            metafunc.parametrize(
+                "avd_topology", fabric_topology, scope="session", ids=get_topology_ids
+            )
+        else:
+            metafunc.parametrize("topology", [], ids=["missing-topology-file"])
 
-        # The "topology" fixture can be called as a parameter in any test function
-        # to run against the topology specified using the --fabric option.
-        metafunc.parametrize(
-            "topology", fabric_topology, scope="session", ids=get_topology_ids
-        )
-
-    if "avd_p2p_links" in metafunc.fixturenames and fabric_opt is not None:
-        fabric_p2p_links = load_avd_fabric_data(
+    # Load AVD P2P design documentation data to parametrize any tests that requests
+    # the `avd_p2p_link` fixture as a dependency.
+    if "avd_p2p_link" in metafunc.fixturenames and fabric_opt is not None:
+        if fabric_p2p_links := load_avd_fabric_data(
             "p2p",
             inventory_dir=Path(inventory_path),
             rootdir=metafunc.config.rootdir,
             fabric=fabric_opt,
-        )
-        metafunc.config.avd_p2p_links = fabric_p2p_links
+        ):
+            metafunc.parametrize(
+                "avd_p2p_link", fabric_p2p_links, scope="session", ids=get_topology_ids
+            )
+        else:
+            metafunc.parametrize("avd_p2p_link", [], ids=["missing-p2p-file"])
