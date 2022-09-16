@@ -44,6 +44,7 @@ def host(test_host):
     test_host.init_connection()
     test_host.connection.enable()
     yield test_host
+    if test_host.connection is not None:
     test_host.connection.disconnect()
     test_host.connection = None
 
@@ -104,6 +105,16 @@ def host_intent_fixture(avd_structured_configs):
     return _get_host_intent
 
 
+def get_avd_fabric_loopbacks(inventory_dir: Path) -> typing.Iterable[tuple]:
+    """Retrieve the loopback0 address from intented configs for the fabric"""
+    structured_intent_data = load_avd_structured_configs(inventory_dir)
+    return [
+        (hostname, host_intent["loopback_interfaces"]["Loopback0"])
+        for hostname, host_intent in structured_intent_data.items()
+        if host_intent.get("loopback_interfaces")
+    ]
+
+
 def pytest_addoption(parser):
     """
     Add options to control ansible inventory and host to test against.
@@ -141,11 +152,18 @@ def get_ids(host_obj: AnsibleTestHost) -> str:
 
 
 def get_topology_ids(topology_dict: dict) -> str:
-    """ID function for pytest parametrization"""
+    """ID function for topology parametrization"""
     return (
         f"{topology_dict['Node']}-{topology_dict['Node Interface']}:"
         f"{topology_dict['Peer Node']}-{topology_dict['Peer Interface']}"
     )
+
+
+def get_loopback_ids(interface_data: tuple) -> str:
+    """ID function for Lo0 intent parametrization"""
+    hostname, interface = interface_data
+    ip = interface.get("ip_address") if interface else "no-IP"
+    return f"({hostname})-lo0-{ip}"
 
 
 def pytest_generate_tests(metafunc):
@@ -193,6 +211,10 @@ def pytest_generate_tests(metafunc):
     if "spine_host" in metafunc.fixturenames and fabric_opt is not None:
         leafs = [x for x in test_hosts if x.host_vars["type"] == "spine"]
         metafunc.parametrize("spine_host", leafs, scope="module", ids=get_ids)
+
+    if "avd_fabric_loopback" in metafunc.fixturenames and fabric_opt is not None:
+        loopbacks = get_avd_fabric_loopbacks(Path(inventory_path))
+        metafunc.parametrize("avd_fabric_loopback", loopbacks, ids=get_loopback_ids)
 
     # Load AVD topology design documentation data to parametrize any tests that requests
     # the `topology` fixture as a dependency.
