@@ -45,8 +45,8 @@ def host(test_host):
     test_host.connection.enable()
     yield test_host
     if test_host.connection is not None:
-    test_host.connection.disconnect()
-    test_host.connection = None
+        test_host.connection.disconnect()
+        test_host.connection = None
 
 
 @pytest.fixture(scope="session")
@@ -207,6 +207,11 @@ def pytest_generate_tests(metafunc):
         leafs = [x for x in test_hosts if x.host_vars["type"] in ("l2leaf", "l3leaf")]
         metafunc.parametrize("leaf_host", leafs, scope="module", ids=get_ids)
 
+    # Use `leaf_host` for tests to require just leafs
+    if "l3_host" in metafunc.fixturenames and fabric_opt is not None:
+        leafs = [x for x in test_hosts if x.host_vars["type"] in ("l3leaf", "spine")]
+        metafunc.parametrize("l3_host", leafs, scope="module", ids=get_ids)
+
     # Use `spine_host` for tests to require just spines
     if "spine_host" in metafunc.fixturenames and fabric_opt is not None:
         leafs = [x for x in test_hosts if x.host_vars["type"] == "spine"]
@@ -220,7 +225,7 @@ def pytest_generate_tests(metafunc):
     # the `topology` fixture as a dependency.
     if "avd_topology" in metafunc.fixturenames and fabric_opt is not None:
         if fabric_topology := load_avd_fabric_data(
-            "avd_topology",
+            "topology",
             inventory_dir=Path(inventory_path),
             rootdir=metafunc.config.rootdir,
             fabric=fabric_opt,
@@ -229,7 +234,7 @@ def pytest_generate_tests(metafunc):
                 "avd_topology", fabric_topology, scope="session", ids=get_topology_ids
             )
         else:
-            metafunc.parametrize("topology", [], ids=["missing-topology-file"])
+            metafunc.parametrize("avd_topology", [], ids=["missing-topology-file"])
 
     # Load AVD P2P design documentation data to parametrize any tests that requests
     # the `avd_p2p_link` fixture as a dependency.
