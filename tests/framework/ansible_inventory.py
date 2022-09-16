@@ -69,7 +69,7 @@ class AnsibleTestHost:
 
     def init_connection(self):
         """Get SSH connection to device"""
-        if self.connection is None:
+        if self.connection is None and self.host_vars:
             self.connection = ConnectHandler(
                 host=self.host_vars["ansible_host"],
                 port=int(self.host_vars.get("ansible_port", 22)),
