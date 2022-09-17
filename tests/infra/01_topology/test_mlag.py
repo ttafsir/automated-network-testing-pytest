@@ -1,5 +1,3 @@
-import json
-
 import pytest
 
 
@@ -18,10 +16,9 @@ def test_mlag_state_and_status(leaf_host, helpers, get_connection, key, expected
     # Act
     with get_connection(leaf_host.name) as conn:
         output = helpers.send_command(conn, "show mlag detail | json")
-        output_dict = json.loads(output)
 
     # Assert
-    assert output_dict[key] == expected_value, f"Expected '{key}' == '{expected_value}'"
+    assert output[key] == expected_value, f"Expected '{key}' == '{expected_value}'"
 
 
 def test_mlag_configuration_matches_intent(
@@ -37,13 +34,12 @@ def test_mlag_configuration_matches_intent(
 
     with get_connection(leaf_host.name) as conn:
         output = helpers.send_command(conn, "show mlag detail | json")
-        output_dict = json.loads(output)
 
     assert (
-        output_dict["domainId"] == mlag_intent["domain_id"]
-        and output_dict["localInterface"] == mlag_intent["local_interface"]
-        and output_dict["peerLink"] == mlag_intent["peer_link"]
-        and output_dict["peerAddress"] == mlag_intent["peer_address"]
-        and output_dict["reloadDelay"] == mlag_intent["reload_delay_mlag"]
-        and output_dict["reloadDelayNonMlag"] == mlag_intent["reload_delay_non_mlag"]
+        output["domainId"] == mlag_intent["domain_id"]
+        and output["localInterface"] == mlag_intent["local_interface"]
+        and output["peerLink"] == mlag_intent["peer_link"]
+        and output["peerAddress"] == mlag_intent["peer_address"]
+        and output["reloadDelay"] == mlag_intent["reload_delay_mlag"]
+        and output["reloadDelayNonMlag"] == mlag_intent["reload_delay_non_mlag"]
     )

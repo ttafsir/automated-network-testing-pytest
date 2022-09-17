@@ -1,5 +1,4 @@
 import pytest
-import json
 
 
 def test_bgp_enabled(l3_host, get_connection, helpers):
@@ -17,7 +16,9 @@ def test_bgp_enabled(l3_host, get_connection, helpers):
     ["show ip bgp summary | json", "show bgp evpn summary | json"],
     ids=["bgp", "evpn"],
 )
-def test_bgp_expected_peers_are_established(l3_host, helpers, get_connection, show_command, get_host_intent):
+def test_bgp_expected_peers_are_established(
+    l3_host, helpers, get_connection, show_command, get_host_intent
+):
     """
     Arrange/Act: retrieve IPv4 and evpn BGP output from device. Retrieve
         BGP intent from AVD intended design.
@@ -28,8 +29,7 @@ def test_bgp_expected_peers_are_established(l3_host, helpers, get_connection, sh
 
     with get_connection(l3_host.name) as conn:
         output = helpers.send_command(conn, show_command)
-        output_dict = json.loads(output)
-        actual_peers = output_dict["vrfs"]["default"]["peers"]
+        actual_peers = output["vrfs"]["default"]["peers"]
 
     assert (
         actual_peers[neighbor]["peerState"] == "Established"

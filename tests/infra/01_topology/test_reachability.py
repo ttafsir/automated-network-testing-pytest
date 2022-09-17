@@ -16,9 +16,9 @@ def test_ethernet_link_neighbor_is_reachable(
     node_interface = avd_p2p_link["Node Interface"]
     remote_ip = ip_interface(avd_p2p_link["Peer IP Address"])
 
-    avd_intent = get_host_intent(node_name)
+    host_intent = get_host_intent(node_name)
     source_ip = ip_interface(
-        avd_intent["ethernet_interfaces"][node_interface].get("ip_address")
+        host_intent["ethernet_interfaces"][node_interface].get("ip_address")
     )
 
     # Act
@@ -41,10 +41,10 @@ def test_remote_loopback0_reachability_from_l3leafs(
     if leaf_host.host_vars["type"] != "l3leaf":
         pytest.skip(reason="Test is only valid for l3 leaf")
 
-    avd_intent = get_host_intent(leaf_host.name)
+    host_intent = get_host_intent(leaf_host.name)
     remote_ip = ip_interface(avd_fabric_loopback[1]["ip_address"])
     local_ip = ip_interface(
-        avd_intent["loopback_interfaces"]["Loopback0"]["ip_address"]
+        host_intent["loopback_interfaces"]["Loopback0"]["ip_address"]
     )
     # Act
     with get_connection(leaf_host.name) as conn:

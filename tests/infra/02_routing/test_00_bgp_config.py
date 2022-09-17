@@ -1,6 +1,3 @@
-import json
-
-
 def test_bgp_expected_asn_is_configured(
     l3_host, helpers, get_host_intent, get_connection
 ):
@@ -12,13 +9,14 @@ def test_bgp_expected_asn_is_configured(
     # Arrange
     host_intent = get_host_intent(l3_host.name)
     expected_bgp_as = host_intent["router_bgp"]["as"]
+
     # Act
     with get_connection(l3_host.name) as conn:
         output = helpers.send_command(conn, "show ip bgp summary | json")
-        output_dict = json.loads(output)
+
     # Assert
     assert (
-        actual := output_dict["vrfs"]["default"]["asn"] == expected_bgp_as
+        actual := output["vrfs"]["default"]["asn"] == expected_bgp_as
     ), f"ASN: {actual} != {expected_bgp_as}"
 
 

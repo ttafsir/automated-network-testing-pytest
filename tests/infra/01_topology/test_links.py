@@ -1,9 +1,7 @@
-import json
-
 import pytest
 
 
-def test_every_link_in_avd_topology_is_connected(avd_topology, get_connection):
+def test_every_link_in_avd_topology_is_connected(avd_topology, get_connection, helpers):
     """
     Arrange/Act: Get device connection for link under test. Connect
         to the devices and gather "show interfaces" output
@@ -15,16 +13,14 @@ def test_every_link_in_avd_topology_is_connected(avd_topology, get_connection):
 
     # Act
     with get_connection(node) as conn:
-        output = conn.send_command("show interfaces | json")
-        output_dict = json.loads(output)
-
+        output = helpers.send_command(conn, "show interfaces | json")
         # Assert
         assert (
-            output_dict["interfaces"][node_interface]["interfaceStatus"] == "connected"
+            output["interfaces"][node_interface]["interfaceStatus"] == "connected"
         ), "Link is not connected"
 
 
-def test_lldp_neighbors_match_intent(avd_topology, get_connection):
+def test_lldp_neighbors_match_intent(avd_topology, get_connection, helpers):
     """
     Arrange/Act: Get device connection for link under test. Get
         link's intended peer data. Connect to the devices and
@@ -43,11 +39,10 @@ def test_lldp_neighbors_match_intent(avd_topology, get_connection):
 
     # Act
     with get_connection(node) as conn:
-        output = conn.send_command("show lldp neighbors | json")
-        output_dict = json.loads(output)
+        output = helpers.send_command(conn, "show lldp neighbors | json")
         neighbors = [
             (n["neighborDevice"], n["neighborPort"])
-            for n in output_dict["lldpNeighbors"]
+            for n in output["lldpNeighbors"]
             if n["port"] == node_interface
         ]
 
@@ -60,7 +55,7 @@ def test_lldp_neighbors_match_intent(avd_topology, get_connection):
     ) in neighbors, f"Expected: {peer_node}, {peer_interface}"
 
 
-def test_l3_p2p_links_have_correct_ips(avd_p2p_link, get_connection):
+def test_l3_p2p_links_have_correct_ips(avd_p2p_link, get_connection, helpers):
     """
     Arrange/Act: Get device connection for link under test. Connect
         to the devices and gather "show ip interface" output
@@ -82,19 +77,16 @@ def test_l3_p2p_links_have_correct_ips(avd_p2p_link, get_connection):
     # Act for both sides of the link
     for node, intf, ip in (left_node_data, right_node_data):
         with get_connection(node) as conn:
-            output = conn.send_command("show ip interface | json")
-            output_dict = json.loads(output)
+            output = helpers.send_command(conn, "show ip interface | json")
 
             # Assert: Is the interface IP'ed?
             try:
-                output_dict["interfaces"][intf]
+                output["interfaces"][intf]
             except KeyError:
                 pytest.fail(f"{node}-{intf} has no configured IP")
 
             # Assert: Does the IP match our design?
             assert (
-                output_dict["interfaces"][intf]["interfaceAddress"]["primaryIp"][
-                    "address"
-                ]
+                output["interfaces"][intf]["interfaceAddress"]["primaryIp"]["address"]
                 == ip.split("/")[0]
             )
