@@ -1,3 +1,4 @@
+import json
 import typing
 from contextlib import contextmanager
 from functools import lru_cache
@@ -22,7 +23,11 @@ class Helpers:
     @staticmethod
     @lru_cache(maxsize=128)
     def send_command(host: BaseConnection, command: str) -> str:
-        return host.send_command(command)
+        output = host.send_command(command)
+        try:
+            return json.loads(output)
+        except json.decoder.JSONDecodeError:
+            return output
 
 
 @pytest.fixture
