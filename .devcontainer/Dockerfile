@@ -5,17 +5,11 @@ RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Copy requirements files for Python and Ansible
-COPY requirements.in requirements.in
-COPY requirements-dev.in requirements-dev.txt
+COPY requirements-all.txt requirements.txt
 COPY requirements.yml requirements.yml
 
-# Install Python requirements
-RUN pip install pip-tools && \
-    pip-compile requirements.in && \
-    pip-compile requirements-dev.in && \
-    pip install -r requirements.txt && \
-    pip install -r requirements-dev.txt
-
+# Install Python and Ansible requirements
+RUN pip install -r requirements.txt
 RUN ansible-galaxy install -r requirements.yml
 
 # copy artifacts from base image build the runtime image
