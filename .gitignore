@@ -17,3 +17,8 @@ inventory/*
 
 .eve-ng
 *.local
+
+
+# reports
+report.md
+report.html
