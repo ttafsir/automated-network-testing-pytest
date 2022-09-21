@@ -25,10 +25,3 @@
       tags: [build]
       ansible.builtin.import_role:
         name: arista.avd.eos_cli_config_gen
-
-    - name: Replace configuration with intended configuration
-      eos_config:
-        src: "{{ eos_config_dir }}/{{ inventory_hostname }}.cfg"
-        replace: config
-        save_when: modified
-      tags: [provision]
