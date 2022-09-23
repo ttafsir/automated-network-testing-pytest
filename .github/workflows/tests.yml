@@ -36,7 +36,7 @@ jobs:
 
       - name: build the network
         run: |
-          sudo containerlab --deploy containerlab/topology --reconfigure
+          containerlab --deploy containerlab/topology --reconfigure
 
       - name: Run tests
         run: pytest tests/infra --md report.md
