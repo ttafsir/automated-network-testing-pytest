@@ -32,7 +32,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install pytest-md
-          pip install .devcontainer/requirements-all.txt
+          pip install -r .devcontainer/requirements-all.txt
 
       - name: build the network
         run: |
