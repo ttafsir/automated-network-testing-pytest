@@ -1,0 +1,45 @@
+name: test network configurations
+
+on:
+  push:
+    branches:
+      - ci_test
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: [self-hosted]
+    strategy:
+      matrix:
+        python-version: [3.9]
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Configure pip caching
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/setup.py') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          pip install pytest-md
+          pip install .devcontainer/requirements-all.txt
+
+      - name: build the network
+        run: |
+          sudo containerlab --deploy containerlab/topology --reconfigure
+
+      - name: Run tests
+        run: pytest tests/infra --md report.md
+
+      - name: Add markdown job summary
+        run: cat report.md >> $GITHUB_STEP_SUMMARY
