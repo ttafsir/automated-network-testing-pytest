@@ -1,6 +1,8 @@
 name: avdirb
 
 topology:
+  defaults:
+    user: ubuntu
   kinds:
     ceos:
       startup-config: ceos.cfg.tpl
