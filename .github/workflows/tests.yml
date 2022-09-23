@@ -39,7 +39,13 @@ jobs:
           sudo containerlab deploy --topo containerlab/topology.yaml --reconfigure
 
       - name: Run tests
+        id: test
         run: pytest tests/infra --md report.md
+        continue-on-error: true
 
       - name: Add markdown job summary
         run: cat report.md >> $GITHUB_STEP_SUMMARY
+
+      - name: Test Track Status
+        if: steps.test.outcome == 'failure'
+        run: exit 1
