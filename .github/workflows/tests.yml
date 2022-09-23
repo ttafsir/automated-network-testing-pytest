@@ -49,3 +49,7 @@ jobs:
       - name: Test Track Status
         if: steps.test.outcome == 'failure'
         run: exit 1
+
+      - name: Clean up
+        run: |
+          sudo containerlab destroy --topo containerlab/topology.yaml
