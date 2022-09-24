@@ -40,7 +40,7 @@ jobs:
 
       - name: Run tests
         id: test
-        run: pytest tests/infra --md report.md
+        run: pytest tests/infra --md report.md --tb=short
         continue-on-error: true
 
       - name: Add markdown job summary
