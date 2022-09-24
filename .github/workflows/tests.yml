@@ -41,6 +41,9 @@ jobs:
       - name: Run tests
         id: test
         run: pytest tests/infra --md report.md -n 8
+        env:
+          ANSIBLE_USER: ${{ secrets.ANSIBLE_USER }}
+          ANSIBLE_PASSWORD: ${{ secrets.ANSIBLE_PASSWORD }}
         continue-on-error: true
 
       - name: Add markdown job summary
