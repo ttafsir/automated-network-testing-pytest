@@ -50,6 +50,7 @@ jobs:
         if: steps.test.outcome == 'failure'
         run: exit 1
 
-      - name: Clean up
+      - name: Clean up. The rm -rf is a clean up hack due to permissions issues.
         run: |
           sudo containerlab destroy --topo containerlab/topology.yaml
+          sudo rm -Rf ~/actions-runner/_work/automated-network-testing-pytest
