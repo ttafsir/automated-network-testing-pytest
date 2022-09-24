@@ -54,12 +54,6 @@ jobs:
           sudo containerlab destroy --topo containerlab/topology.yaml
         continue-on-error: true
 
-      - name: Hack to clean up hosted runner
-        run: |
-          echo "Sleeping for 2 seconds…" && sleep 2
-          sudo rm -Rf ~/actions-runner/_work/automated-network-testing-pytest
-        continue-on-error: true
-
       - name: Test Track Status
         if: steps.test.outcome == 'failure'
         run: exit 1
