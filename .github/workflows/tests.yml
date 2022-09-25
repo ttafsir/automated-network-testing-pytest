@@ -5,6 +5,8 @@ on:
     branches:
       - infra_tests
   workflow_dispatch:
+env:
+  ACTIONS_RUNNER_HOOK_JOB_STARTED: ~/runner-cleanup.sh
 
 jobs:
   test:
