@@ -41,11 +41,11 @@ jobs:
 
       - name: build AVD design and configs
         run: |
-          ansible-playbook -i inventory playbooks/fabric-design.yml
+          ansible-playbook -i inventory playbooks/fabric-design.yaml
 
       - name: deploy AVD configs
         run: |
-          ansible-playbook -i inventory playbooks/fabric-deploy.yml
+          ansible-playbook -i inventory playbooks/fabric-deploy.yaml
 
       - name: run tests
         id: test
