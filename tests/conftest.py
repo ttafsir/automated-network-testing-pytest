@@ -1,4 +1,5 @@
 import json
+import logging
 import typing
 from contextlib import contextmanager
 from functools import lru_cache
@@ -14,6 +15,9 @@ from .framework import (
     parse_ansible_inventory_cli,
 )
 
+test_logger = logging.getLogger()
+test_logger.setLevel(logging.INFO)
+
 
 class Helpers:
     """
@@ -22,11 +26,19 @@ class Helpers:
 
     @staticmethod
     @lru_cache(maxsize=128)
-    def send_command(host: BaseConnection, command: str) -> str:
-        output = host.send_command(command)
+    def send_command(connection: BaseConnection, command: str) -> str:
+        """
+        Send command to host and return output
+        """
+        output = connection.send_command(command)
+
+        # log test function, command, and output
+        test_logger.info("Sending command: %s to %s", command, connection.host)
+        test_logger.info("Output: %s", output)
         try:
             return json.loads(output)
         except json.decoder.JSONDecodeError:
+            test_logger.warning("Command output is not JSON: %s", output)
             return output
 
 
