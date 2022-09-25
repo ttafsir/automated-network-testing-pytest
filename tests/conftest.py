@@ -30,7 +30,7 @@ class Helpers:
         """
         Send command to host and return output
         """
-        output = connection.send_command(command)
+        output = connection.send_command(command, delay_factor=2)
 
         # log test function, command, and output
         test_logger.info("Sending command: %s to %s", command, connection.host)
@@ -39,7 +39,7 @@ class Helpers:
             return json.loads(output)
         except json.decoder.JSONDecodeError:
             test_logger.warning("Command output is not JSON: %s", output)
-            return output
+            raise
 
 
 @pytest.fixture
