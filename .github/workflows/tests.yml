@@ -1,4 +1,4 @@
-name: test network configurations
+name: test deployment
 
 on:
   push:
