@@ -39,7 +39,6 @@ class Helpers:
             return json.loads(output)
         except json.decoder.JSONDecodeError:
             test_logger.warning("Command output is not JSON: %s", output)
-            raise
 
 
 @pytest.fixture
