@@ -48,6 +48,7 @@ jobs:
           ansible-playbook -i inventory playbooks/fabric-design.yml
 
       - name: deploy AVD configs
+        run: |
           ansible-playbook -i inventory playbooks/fabric-deploy.yml
 
   test_deployment:
