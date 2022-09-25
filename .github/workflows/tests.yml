@@ -31,7 +31,7 @@ jobs:
           pip install pytest-md
           pip install -r .devcontainer/requirements-all.txt
 
-  build_infra:
+  test_clab:
     runs-on: [self-hosted]
     needs: build_deps
     steps:
@@ -39,10 +39,6 @@ jobs:
         run: |
           sudo containerlab deploy --topo containerlab/topology.yaml --reconfigure
 
-  build_avd:
-    runs-on: [self-hosted]
-    needs: [build_deps, build_infra]
-    steps:
       - name: build AVD design and configs
         run: |
           ansible-playbook -i inventory playbooks/fabric-design.yml
@@ -51,11 +47,7 @@ jobs:
         run: |
           ansible-playbook -i inventory playbooks/fabric-deploy.yml
 
-  test_deployment:
-    runs-on: [self-hosted]
-    needs: [build_deps, build_infra, build_avd]
-    steps:
-      - name: Run tests
+      - name: run tests
         id: test
         run: pytest tests/infra --md report.md -n 8
         env:
