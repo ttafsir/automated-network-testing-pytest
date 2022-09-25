@@ -28,7 +28,7 @@ jobs:
 
       - name: Install PYPI dependencies
         run: |
-          pip install pytest-md
+          pip install pytest-md pytest-html pytest-emoji
           pip install -r .devcontainer/requirements-all.txt
 
       - name: Install Ansible dependencies
@@ -53,7 +53,7 @@ jobs:
 
       - name: run tests
         id: test
-        run: pytest tests/infra --md report.md -n 8
+        run: pytest tests/infra --emoji --md report.md --html=report.html --self-contained-html -n 8
         env:
           ANSIBLE_USER: ${{ secrets.ANSIBLE_USER }}
           ANSIBLE_PASSWORD: ${{ secrets.ANSIBLE_PASSWORD }}
@@ -61,6 +61,12 @@ jobs:
 
       - name: Add markdown job summary
         run: cat report.md >> $GITHUB_STEP_SUMMARY
+
+      - name: upload report.html artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: html-test-report
+          path: report.html
 
       - name: Destroy topology
         run: |
