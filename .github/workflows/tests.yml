@@ -26,10 +26,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      - name: Install dependencies
+      - name: Install PYPI dependencies
         run: |
           pip install pytest-md
           pip install -r .devcontainer/requirements-all.txt
+
+      - name: Install Ansible dependencies
+        run: |
+          ansible-galaxy collection install -r .devcontainer/requirements.yml
 
   test_clab:
     runs-on: [self-hosted]
