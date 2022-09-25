@@ -3,7 +3,7 @@ name: test network configurations
 on:
   push:
     branches:
-      - ci_test
+      - infra_tests
   workflow_dispatch:
 
 jobs:
