@@ -1,0 +1,59 @@
+name: test network configurations
+
+on:
+  push:
+    branches:
+      - infra_tests
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: [self-hosted]
+    strategy:
+      matrix:
+        python-version: [3.9]
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Configure pip caching
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/setup.py') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          pip install pytest-md
+          pip install -r .devcontainer/requirements-all.txt
+
+      - name: build the network
+        run: |
+          sudo containerlab deploy --topo containerlab/topology.yaml --reconfigure
+
+      - name: Run tests
+        id: test
+        run: pytest tests/infra --md report.md -n 8
+        env:
+          ANSIBLE_USER: ${{ secrets.ANSIBLE_USER }}
+          ANSIBLE_PASSWORD: ${{ secrets.ANSIBLE_PASSWORD }}
+        continue-on-error: true
+
+      - name: Add markdown job summary
+        run: cat report.md >> $GITHUB_STEP_SUMMARY
+
+      - name: Destroy topology
+        run: |
+          sudo containerlab destroy --topo containerlab/topology.yaml
+        continue-on-error: true
+
+      - name: Test Track Status
+        if: steps.test.outcome == 'failure'
+        run: exit 1
