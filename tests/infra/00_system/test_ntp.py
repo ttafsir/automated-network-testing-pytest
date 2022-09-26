@@ -1,3 +1,7 @@
+import pytest
+
+
+@pytest.mark.slow
 def test_ntp_is_synchronised(host, helpers):
     """
     Arrange/Act: Retrieve facts from device and variables from inventory
