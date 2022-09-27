@@ -52,9 +52,25 @@ jobs:
         run: |
           ansible-playbook -i inventory playbooks/fabric-deploy.yaml
 
+      - name: Inventory configuration for dev branches
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "ANSIBLE_INV_SRC=inventory.dev" >> $GITHUB_ENV
+
+      - name: Inventory configuration for main branch
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "ANSIBLE_INV_SRC=inventory" >> $GITHUB_ENV
+
       - name: run tests
         id: test
-        run: pytest tests/infra --emoji --md report.md --html=report.html --self-contained-html -n 8
+        run: |
+          pytest tests/infra  -n 8 \
+          --emoji \
+          --md report.md \
+          --html=report.html \
+          --self-contained-html
+          --inventory-path="${{ env.ANSIBLE_INV_SRC }}"
         env:
           ANSIBLE_USER: ${{ secrets.ANSIBLE_USER }}
           ANSIBLE_PASSWORD: ${{ secrets.ANSIBLE_PASSWORD }}
