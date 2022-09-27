@@ -30,7 +30,7 @@ class Helpers:
         """
         Send command to host and return output
         """
-        output = connection.send_command(command, delay_factor=5)
+        output = connection.send_command_timing(command, read_timeout=600)
 
         # log test function, command, and output
         test_logger.info("Sending command: %s to %s", command, connection.host)
