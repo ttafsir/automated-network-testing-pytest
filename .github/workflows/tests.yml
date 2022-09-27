@@ -39,7 +39,8 @@ jobs:
     runs-on: [self-hosted]
     needs: build_deps
     steps:
-      - name: build the network
+      - name: build the containerlab network for non-prod branches
+        if: github.ref != 'refs/heads/main'
         run: |
           sudo containerlab deploy --topo containerlab/topology.yaml --reconfigure
 
