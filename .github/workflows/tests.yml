@@ -69,7 +69,7 @@ jobs:
           --emoji \
           --md report.md \
           --html=report.html \
-          --self-contained-html
+          --self-contained-html \
           --inventory-path="${{ env.ANSIBLE_INV_SRC }}"
         env:
           ANSIBLE_USER: ${{ secrets.ANSIBLE_USER }}
