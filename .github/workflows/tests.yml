@@ -65,7 +65,7 @@ jobs:
       - name: run tests
         id: test
         run: |
-          pytest tests/infra  -n 8 \
+          pytest tests/infra  -n 4 \
           --emoji \
           --md report.md \
           --html=report.html \
