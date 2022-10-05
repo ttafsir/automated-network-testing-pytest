@@ -28,7 +28,6 @@ jobs:
 
       - name: Install PYPI dependencies
         run: |
-          pip install pytest-md pytest-html pytest-emoji
           pip install -r .devcontainer/requirements-all.txt
 
       - name: Install Ansible dependencies

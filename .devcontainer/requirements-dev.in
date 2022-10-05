@@ -5,7 +5,11 @@ isort
 pre-commit
 pre-commit-hooks
 yamllint
+pip-tools
 pylint
 pytest
 pytest-xdist
+pytest-emoji
+pytest-md
+pytest-html
 tox
