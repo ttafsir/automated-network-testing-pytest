@@ -49,6 +49,8 @@ dill==0.3.5.1
     # via pylint
 distlib==0.3.6
     # via virtualenv
+docker==6.0.0
+    # via -r .devcontainer/requirements-dev.in
 dpath==2.0.6
     # via -r .devcontainer/requirements.in
 eve-ng==0.2.7
@@ -101,6 +103,7 @@ packaging==21.3
     # via
     #   ansible-core
     #   build
+    #   docker
     #   pytest
     #   tox
 paramiko==2.11.0
@@ -183,7 +186,9 @@ pyyaml==6.0
     #   pre-commit
     #   yamllint
 requests==2.28.1
-    # via eve-ng
+    # via
+    #   docker
+    #   eve-ng
 resolvelib==0.8.1
     # via ansible-core
 rich==10.16.2
@@ -230,11 +235,15 @@ typing-extensions==4.3.0
     #   black
     #   pylint
 urllib3==1.26.12
-    # via requests
+    # via
+    #   docker
+    #   requests
 virtualenv==20.16.5
     # via
     #   pre-commit
     #   tox
+websocket-client==1.4.1
+    # via docker
 wheel==0.37.1
     # via pip-tools
 wrapt==1.14.1

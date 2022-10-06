@@ -15,6 +15,13 @@ from .framework import (
     parse_ansible_inventory_cli,
 )
 
+HAS_DOCKER = False
+try:
+    import docker
+    HAS_DOCKER = True
+except ImportError:
+    pass
+
 test_logger = logging.getLogger()
 test_logger.setLevel(logging.INFO)
 
@@ -40,6 +47,7 @@ class Helpers:
         except json.decoder.JSONDecodeError:
             test_logger.warning("Command output is not JSON: %s", output)
             return output
+
 
 @pytest.fixture
 def helpers():
@@ -266,3 +274,9 @@ def pytest_generate_tests(metafunc):
             )
         else:
             metafunc.parametrize("avd_p2p_link", [], ids=["missing-p2p-file"])
+
+    if "docker_host" in metafunc.fixturenames and HAS_DOCKER:
+        for marker in getattr(metafunc.function, "pytestmark", []):
+            if marker.name == "docker_hosts":
+                hosts = marker.args
+                metafunc.parametrize("docker_host", hosts, scope="function")

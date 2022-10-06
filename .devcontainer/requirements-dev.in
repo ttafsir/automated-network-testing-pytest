@@ -13,3 +13,4 @@ pytest-emoji
 pytest-md
 pytest-html
 tox
+docker
