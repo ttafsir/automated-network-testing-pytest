@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# source: https://github.com/arista-netdevops-community/avd-cEOS-Lab/blob/main/labs/evpn/avd_sym_irb/host_l3_config/l3_build.sh
 
 CMD1='cat /etc/hostname; \
 sudo vconfig add team0 110; \
