@@ -43,6 +43,10 @@ jobs:
         run: |
           sudo containerlab deploy --topo containerlab/topology.yaml --reconfigure
 
+      - name: configure test clients for non-prod branches
+        if: github.ref != 'refs/heads/main'
+        run: bash ${GITHUB_WORKSPACE}/containerlab/l3_build.sh
+
       - name: build AVD design and configs
         run: |
           ansible-playbook -i inventory playbooks/fabric-design.yaml
@@ -64,12 +68,13 @@ jobs:
       - name: run tests
         id: test
         run: |
-          pytest tests/infra  -n 4 \
+          pytest tests/infra  -n 3 \
           --emoji \
           --md report.md \
           --html=report.html \
           --self-contained-html \
           --inventory-path="${{ env.ANSIBLE_INV_SRC }}"
+          -m "not slow"
         env:
           ANSIBLE_USER: ${{ secrets.ANSIBLE_USER }}
           ANSIBLE_PASSWORD: ${{ secrets.ANSIBLE_PASSWORD }}
